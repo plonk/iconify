@@ -103,9 +103,13 @@ class CommandStatusIcon < Gtk::StatusIcon
 
     cr = pixmap.create_cairo_context
 
-    cr.set_source_rgba(*@background_color, 1.0)
+    cr.set_source_rgb(0.8, 0.8, 0.8)
     cr.set_operator(Cairo::OPERATOR_SOURCE)
     cr.paint
+
+    cr.set_source_rgb(*@background_color)
+    cr.rounded_rectangle(1, 1, 62, 62, 15)
+    cr.fill
 
     cr.set_font_size(24)
     cr.move_to(3, 64 / 2 + cr.font_extents.ascent / 2)
