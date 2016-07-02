@@ -11,6 +11,7 @@ class Program
     @terminal_window = TerminalWindow.new(argv)
     @terminal_window.signal_connect('changed') do
       @status_icon.set_state(@terminal_window.state)
+      @terminal_window.icon = @status_icon.pixbuf
     end
     @terminal_window.show_all
     @terminal_window.hide

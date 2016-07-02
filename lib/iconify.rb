@@ -21,6 +21,8 @@ class TerminalWindow < Gtk::Window
 
     @terminal = Vte::Terminal.new
 
+    self.title = "iconify - #{argv[0]}"
+
     signal_connect('delete-event') do
       hide
     end
