@@ -6,59 +6,80 @@ require "iconify/program"
 
 module Iconify
 
-include Gtk
-
 class TerminalWindow < Gtk::Window
-  def initialize(status_icon, argv)
+  include Gtk
+
+  type_register
+  signal_new('changed', GLib::Signal::ACTION, nil, nil)
+
+  attr_reader :state
+
+  def initialize(argv)
     super()
 
     @argv = argv
 
-    @status_icon = status_icon
     @terminal = Vte::Terminal.new
 
     signal_connect('delete-event') do
       hide
     end
 
-    @terminal.signal_connect('child-exited') do
-      @status_icon.set_state(:stopped)
-      @rerun_button.sensitive = true
-    end
+    @state = :stopped
 
     vbox = VBox.new
     hbox = HButtonBox.new
-    @rerun_button = Button.new("Rerun")
-    @rerun_button.signal_connect('clicked') do
+    rerun_button = Button.new("Rerun")
+    rerun_button.signal_connect('clicked') do
       self.exec
     end
+    signal_connect('changed') do
+      rerun_button.sensitive = (@state == :stopped)
+    end
 
-    button2 = Button.new("Quit")
-    button2.signal_connect('clicked') do
+    kill_button = Button.new("Kill")
+    kill_button.signal_connect('clicked') do 
+      Process.kill("KILL", @pid) if @pid
+    end
+    signal_connect('changed') do
+      kill_button.sensitive = (@state == :running)
+    end
+
+    quit_button = Button.new("Quit")
+    quit_button.signal_connect('clicked') do
       Gtk.main_quit
     end
-    hbox.pack_start(@rerun_button)
-    hbox.pack_start(button2)
+    hbox.pack_start(rerun_button)
+    hbox.pack_start(kill_button)
+    hbox.pack_start(quit_button)
     vbox.pack_start(hbox, false)
     vbox.pack_start(@terminal)
 
     add vbox
+
+    @terminal.signal_connect('child-exited') do
+      @state = :stopped
+      @pid = nil
+      rerun_button.sensitive = true
+      signal_emit('changed')
+    end
   end
 
   def exec
-    @terminal.fork_command(argv: @argv)
-    @status_icon.set_state(:running)
-    @rerun_button.sensitive = false
+    @pid = @terminal.fork_command(argv: @argv)
+    @state = :running
+    signal_emit('changed')
   end
 
 end
 
 class CommandStatusIcon < Gtk::StatusIcon
+  include Gtk
+
   def initialize(name)
     super()
 
     @name = name
-    set_state(:stopped)
   end
 
   def set_state(state)

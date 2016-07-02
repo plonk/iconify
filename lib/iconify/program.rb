@@ -8,7 +8,10 @@ class Program
     end
     @argv = argv
     @status_icon = CommandStatusIcon.new(argv[0])
-    @terminal_window = TerminalWindow.new(@status_icon, argv)
+    @terminal_window = TerminalWindow.new(argv)
+    @terminal_window.signal_connect('changed') do
+      @status_icon.set_state(@terminal_window.state)
+    end
     @terminal_window.show_all
     @terminal_window.hide
 

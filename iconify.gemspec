@@ -9,9 +9,10 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Yoteichi"]
   spec.email         = ["plonk@piano.email.ne.jp"]
 
-  spec.summary       = %q{iconify encapsulates your command line into a notification icon.}
-  spec.description   = %q{iconify encapsulates your command line into a notification icon.}
+  spec.summary       = %q{Iconify is a utility program to turn a command line into a status icon.}
+  spec.description   = %q{Iconify is a utility program to turn a command line into a status icon.}
   spec.homepage      = "https://github.com/plonk/iconifiy"
+  spec.licenses      = ['GPL-2']
 
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.bindir        = "exe"

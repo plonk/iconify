@@ -1,36 +1,25 @@
 # Iconify
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/iconify`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Iconify is a utility program to turn a command line into a status
+icon.
 
 ## Installation
-
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'iconify'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
 
     $ gem install iconify
 
 ## Usage
 
-TODO: Write usage instructions here
+With the following, a bash instance will be started and a status icon
+with the label 'bash' on it will appear on your notification area.
 
-## Development
+    $ iconify bash
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+Click on the icon and a terminal window appears in which the process
+is running. When you close the window, it will only be hidden from
+view and a subsequent click on the status icon will bring it back
+again.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/iconify.
+Bug reports and pull requests are welcome on GitHub at https://github.com/plonk/iconify.
 
