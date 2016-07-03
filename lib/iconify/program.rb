@@ -39,7 +39,7 @@ class Program
   end
 
   def run_dialog(message)
-    dialog = Gtk::MessageDialog.new(main_app_window, 
+    dialog = Gtk::MessageDialog.new(@terminal_window,
                                     Gtk::Dialog::DESTROY_WITH_PARENT,
                                     Gtk::MessageDialog::QUESTION,
                                     Gtk::MessageDialog::BUTTONS_CLOSE,
