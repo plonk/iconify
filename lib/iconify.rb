@@ -23,10 +23,6 @@ class TerminalWindow < Gtk::Window
 
     self.title = "iconify - #{argv[0]}"
 
-    signal_connect('delete-event') do
-      hide
-    end
-
     @state = :stopped
 
     vbox = VBox.new
