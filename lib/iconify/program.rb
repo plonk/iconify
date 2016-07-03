@@ -15,6 +15,7 @@ class Program
       else
         run_dialog("The status icon is not embedded in a notification area. The window cannot be hidden.")
       end
+      true # do not close
     end
     @terminal_window.signal_connect('changed') do
       @status_icon.set_state(@terminal_window.state)
@@ -27,6 +28,7 @@ class Program
       else
         run_dialog("Iconify has detected its status icon is not embedded in a notification area. The window cannot be hidden.")
       end
+      false # one time
     end
 
     @status_icon.signal_connect("activate") do
