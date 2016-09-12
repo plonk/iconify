@@ -11,7 +11,7 @@ class Program
     @terminal_window = TerminalWindow.new(argv)
     @terminal_window.signal_connect('delete-event') do
       if @status_icon.embedded?
-        hide
+        @terminal_window.hide
       else
         run_dialog("The status icon is not embedded in a notification area. The window cannot be hidden.")
       end
