@@ -52,7 +52,12 @@ module Iconify
       toolbar.add(SeparatorToolItem.new)
       toolbar.add(@quit_button)
       vbox.pack_start(toolbar, expand: false)
-      vbox.pack_start(@terminal, expand: true, fill: true)
+
+      padding_box = Box.new(:vertical)
+      padding_box.pack_start(@terminal, expand: true, fill: true)
+      padding_box.border_width = 18
+      self.override_background_color(StateFlags::NORMAL, COLORS[15])
+      vbox.pack_start(padding_box, expand: true, fill: true)
 
       add vbox
     end
