@@ -22,7 +22,7 @@ class Program
       @terminal_window.icon = @status_icon.pixbuf
     end
     @terminal_window.show_all
-    Gtk.timeout_add(500) do
+    GLib::Timeout.add(500) do
       if @status_icon.embedded?
         @terminal_window.hide
       else
