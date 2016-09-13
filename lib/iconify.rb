@@ -27,42 +27,79 @@ module Iconify
       @kill_button  = create_kill_button
       @quit_button  = create_quit_button
       @terminal     = create_vte_terminal
+      @copy_button  = create_copy_button
+      @paste_button = create_paste_button
 
       layout
+
+      set_geometry_hints
+    end
+
+    def set_geometry_hints
+      @terminal.realize
+      @terminal.set_geometry_hints_for_window(self)
     end
 
     def layout
       vbox = Box.new(:vertical)
-      hbox = ButtonBox.new(:horizontal)
+      toolbar = Toolbar.new
 
-      hbox.pack_start(@rerun_button)
-      hbox.pack_start(@kill_button)
-      hbox.pack_start(@quit_button)
-      vbox.pack_start(hbox, expand: false)
+      toolbar.add(@rerun_button)
+      toolbar.add(@kill_button)
+      toolbar.add(SeparatorToolItem.new)
+      toolbar.add(@copy_button)
+      toolbar.add(@paste_button)
+      toolbar.add(SeparatorToolItem.new)
+      toolbar.add(@quit_button)
+      vbox.pack_start(toolbar, expand: false)
       vbox.pack_start(@terminal, expand: true, fill: true)
 
       add vbox
     end
 
+    def create_copy_button
+      ToolButton.new(stock_id: Stock::COPY).tap do |b|
+        b.tooltip_text = "Copy"
+        b.signal_connect('clicked') do
+          @terminal.copy_clipboard
+        end
+      end
+    end
+
+    def create_paste_button
+      ToolButton.new(stock_id: Stock::PASTE).tap do |b|
+        b.tooltip_text = "Paste"
+        b.signal_connect('clicked') do
+          @terminal.paste_clipboard
+        end
+      end
+    end
+
     def create_kill_button
-      Button.new(label: 'Kill').tap do |kill_button|
-        kill_button.signal_connect('clicked') do
+      ToolButton.new(label: 'Kill').tap do |b|
+        b.icon_name = Stock::STOP
+        b.tooltip_text = "Stop the child process by sending the QUIT signal."
+        b.signal_connect('clicked') do
           Process.kill('KILL', @pid) if @pid
         end
       end
     end
 
     def create_rerun_button
-      Button.new(label: 'Rerun').tap do |rerun_button|
-        rerun_button.signal_connect('clicked') do
+      ToolButton.new(label: 'Rerun').tap do |b|
+        b.icon_name = Stock::REFRESH
+        b.tooltip_text = "Rerun the program."
+        b.signal_connect('clicked') do
           exec
         end
       end
     end
 
     def create_quit_button
-      Button.new(label: 'Quit').tap do |quit_button|
-        quit_button.signal_connect('clicked') do
+      ToolButton.new(label: 'Quit').tap do |b|
+        b.icon_name = Stock::QUIT
+        b.tooltip_text = "Stop the program and quit."
+        b.signal_connect('clicked') do
           Gtk.main_quit
         end
       end
@@ -76,17 +113,43 @@ module Iconify
       @rerun_button.sensitive = (@state == :stopped)
       @kill_button.sensitive  = (@state == :running)
 
+      @copy_button.sensitive = (@terminal.has_selection?)
+
       signal_emit('changed')
     end
+
+    # the shimbun color scheme
+    COLORS = [[0x30, 0x30, 0x30],
+              [0xbe, 0x11, 0x37],
+              [0x29, 0x73, 0x2c],
+              [0xc9, 0x5c, 0x26],
+              [0x2a, 0x5a, 0xa2],
+              [0xcd, 0x3a, 0x93],
+              [0x07, 0x86, 0x92],
+              [0xd0, 0xd0, 0xd0],
+              [0x50, 0x50, 0x50],
+              [0xe6, 0x2b, 0x5d],
+              [0x40, 0x9e, 0x01],
+              [0xec, 0x75, 0x42],
+              [0x17, 0x7f, 0xe0],
+              [0xe9, 0x53, 0xba],
+              [0x00, 0xa9, 0xb2],
+              [0xf2, 0xf2, 0xf2]]
+             .map { |rgb| Gdk::RGBA.new(*rgb.map { |n| n.fdiv(255) }, 1.0) }
 
     def create_vte_terminal
       Vte::Terminal.new.tap do |t|
         t.font = Pango::FontDescription.new('monospace 14')
-        t.set_size_request(t.char_width * 80, t.char_height * 24)
+        t.set_size_request(t.char_width * 40, t.char_height * 12)
+        t.set_size(80, 24)
         t.cursor_blink_mode = Vte::CursorBlinkMode::OFF
+        t.set_colors(COLORS[0], COLORS[15], COLORS)
 
         t.signal_connect('child-exited') do
           on_child_exited
+        end
+        t.signal_connect('selection-changed') do
+          changed
         end
       end
     end
