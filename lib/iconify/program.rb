@@ -1,10 +1,14 @@
+require 'optparse'
+
 module Iconify
   class Program
+    include Gtk
+
     def initialize(argv)
-      if argv.empty?
-        STDERR.puts 'arg'
-        exit 1
-      end
+      @start_minimized = false
+
+      parse_args!(argv)
+
       @argv = argv
       @status_icon = CommandStatusIcon.new(argv[0])
       @terminal_window = TerminalWindow.new(argv)
@@ -22,10 +26,12 @@ module Iconify
       end
       @terminal_window.show_all
       GLib::Timeout.add(500) do
-        if @status_icon.embedded?
-          @terminal_window.hide
-        else
-          run_dialog('Iconify has detected its status icon is not embedded in a notification area. The window cannot be hidden.')
+        if @start_minimized
+          if @status_icon.embedded?
+            @terminal_window.hide
+          else
+            run_dialog('Iconify has detected its status icon is not embedded in a notification area. The window cannot be hidden.')
+          end
         end
         false # one time
       end
@@ -37,6 +43,25 @@ module Iconify
           @terminal_window.show
         end
       end
+    end
+
+    def parse_args!(argv)
+      parser = OptionParser.new do |opts|
+        opts.banner = 'Usage: iconify [OPTIONS] COMMAND [ARGUMENTS...]'
+
+        opts.on('-m', '--minimized', 'Start minimized') do |m|
+          @start_minimized = m
+        end
+      end
+      parser.parse!(argv)
+
+      if argv.empty?
+        STDERR.puts parser.banner
+        exit 1
+      end
+    rescue OptionParser::InvalidOption => e
+      STDERR.puts e
+      exit 1
     end
 
     def run_dialog(message)
