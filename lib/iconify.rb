@@ -56,7 +56,7 @@ module Iconify
       padding_box = Box.new(:vertical)
       padding_box.pack_start(@terminal, expand: true, fill: true)
       padding_box.border_width = 18
-      self.override_background_color(StateFlags::NORMAL, COLORS[15])
+      override_background_color(StateFlags::NORMAL, COLORS[15])
       vbox.pack_start(padding_box, expand: true, fill: true)
 
       add vbox
@@ -64,7 +64,7 @@ module Iconify
 
     def create_copy_button
       ToolButton.new(stock_id: Stock::COPY).tap do |b|
-        b.tooltip_text = "Copy"
+        b.tooltip_text = 'Copy'
         b.signal_connect('clicked') do
           @terminal.copy_clipboard
         end
@@ -73,7 +73,7 @@ module Iconify
 
     def create_paste_button
       ToolButton.new(stock_id: Stock::PASTE).tap do |b|
-        b.tooltip_text = "Paste"
+        b.tooltip_text = 'Paste'
         b.signal_connect('clicked') do
           @terminal.paste_clipboard
         end
@@ -83,7 +83,7 @@ module Iconify
     def create_kill_button
       ToolButton.new(label: 'Kill').tap do |b|
         b.icon_name = Stock::STOP
-        b.tooltip_text = "Stop the child process by sending the QUIT signal."
+        b.tooltip_text = 'Stop the child process by sending the QUIT signal.'
         b.signal_connect('clicked') do
           Process.kill('KILL', @pid) if @pid
         end
@@ -93,7 +93,7 @@ module Iconify
     def create_rerun_button
       ToolButton.new(label: 'Rerun').tap do |b|
         b.icon_name = Stock::REFRESH
-        b.tooltip_text = "Rerun the program."
+        b.tooltip_text = 'Rerun the program.'
         b.signal_connect('clicked') do
           exec
         end
@@ -103,7 +103,7 @@ module Iconify
     def create_quit_button
       ToolButton.new(label: 'Quit').tap do |b|
         b.icon_name = Stock::QUIT
-        b.tooltip_text = "Stop the program and quit."
+        b.tooltip_text = 'Stop the program and quit.'
         b.signal_connect('clicked') do
           Gtk.main_quit
         end
@@ -118,7 +118,7 @@ module Iconify
       @rerun_button.sensitive = (@state == :stopped)
       @kill_button.sensitive  = (@state == :running)
 
-      @copy_button.sensitive = (@terminal.has_selection?)
+      @copy_button.sensitive = @terminal.has_selection?
 
       signal_emit('changed')
     end
