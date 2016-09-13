@@ -40,11 +40,11 @@ module Iconify
     end
 
     def run_dialog(message)
-      dialog = Gtk::MessageDialog.new(@terminal_window,
-                                      Gtk::Dialog::DESTROY_WITH_PARENT,
-                                      Gtk::MessageDialog::QUESTION,
-                                      Gtk::MessageDialog::BUTTONS_CLOSE,
-                                      message)
+      dialog = MessageDialog.new(parent:  @terminal_window,
+                                 flags:   DialogFlags::DESTROY_WITH_PARENT,
+                                 type:    MessageType::QUESTION,
+                                 buttons: ButtonsType::CLOSE,
+                                 message: message)
       dialog.run
       dialog.destroy
     end
