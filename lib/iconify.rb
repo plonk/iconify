@@ -1,5 +1,5 @@
-require 'gtk2'
-require 'vte'
+require 'gtk3'
+require 'vte3'
 
 require "iconify/version"
 require "iconify/program"
@@ -20,14 +20,17 @@ class TerminalWindow < Gtk::Window
     @argv = argv
 
     @terminal = Vte::Terminal.new
+    @terminal.font = Pango::FontDescription.new("monospace 14")
+    @terminal.set_size_request(@terminal.char_width * 80, @terminal.char_height * 24)
+    @terminal.cursor_blink_mode = Vte::CursorBlinkMode::OFF
 
     self.title = "iconify - #{argv[0]}"
 
     @state = :stopped
 
-    vbox = VBox.new
-    hbox = HButtonBox.new
-    rerun_button = Button.new("Rerun")
+    vbox = Box.new(:vertical)
+    hbox = ButtonBox.new(:horizontal)
+    rerun_button = Button.new(label: "Rerun")
     rerun_button.signal_connect('clicked') do
       self.exec
     end
@@ -35,7 +38,7 @@ class TerminalWindow < Gtk::Window
       rerun_button.sensitive = (@state == :stopped)
     end
 
-    kill_button = Button.new("Kill")
+    kill_button = Button.new(label: "Kill")
     kill_button.signal_connect('clicked') do 
       Process.kill("KILL", @pid) if @pid
     end
@@ -43,15 +46,15 @@ class TerminalWindow < Gtk::Window
       kill_button.sensitive = (@state == :running)
     end
 
-    quit_button = Button.new("Quit")
+    quit_button = Button.new(label: "Quit")
     quit_button.signal_connect('clicked') do
       Gtk.main_quit
     end
     hbox.pack_start(rerun_button)
     hbox.pack_start(kill_button)
     hbox.pack_start(quit_button)
-    vbox.pack_start(hbox, false)
-    vbox.pack_start(@terminal)
+    vbox.pack_start(hbox, expand: false)
+    vbox.pack_start(@terminal, expand: true, fill: true)
 
     add vbox
 
@@ -64,7 +67,7 @@ class TerminalWindow < Gtk::Window
   end
 
   def exec
-    @pid = @terminal.fork_command(argv: @argv)
+    @pid = @terminal.spawn(argv: @argv)
     @state = :running
     signal_emit('changed')
   end
@@ -95,9 +98,11 @@ class CommandStatusIcon < Gtk::StatusIcon
   end
 
   def redraw
-    pixmap = Gdk::Pixmap.new(nil, 64, 64, 24)
+    # pixmap = Gdk::Pixmap.new(nil, 64, 64, 24)
 
-    cr = pixmap.create_cairo_context
+    image_surface = Cairo::ImageSurface.new(Cairo::FORMAT_ARGB32, 64, 64)
+
+    cr = Cairo::Context.new(image_surface)
 
     cr.set_source_rgb(0.8, 0.8, 0.8)
     cr.set_operator(Cairo::OPERATOR_SOURCE)
@@ -114,8 +119,10 @@ class CommandStatusIcon < Gtk::StatusIcon
 
     cr.destroy
 
-    buf = Gdk::Pixbuf.from_drawable(nil, pixmap, 0, 0, 64, 64)
+    buf = image_surface.to_pixbuf(0, 0, 64, 64)
     self.pixbuf = buf
+
+    image_surface.destroy
   end
 
 end
